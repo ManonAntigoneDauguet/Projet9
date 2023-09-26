@@ -74,3 +74,22 @@ describe("Given I am connected as an employee", () => {
     })
   })
 })
+
+
+
+
+// test d'intégration GET
+describe("Given I am connected as an employee", () => {
+  describe("When I am on Bills Page", () => {
+    test("fetches bills from mock API GET", async() => {
+      document.body.innerHTML = BillsUI({ data: bills })
+      await waitFor(() => screen.getByText("Mes notes de frais"))
+      const contentType = await screen.getByText("Services en ligne")
+      expect(contentType).toBeTruthy()
+      const contentStatus = await screen.getByText("accepted")
+      expect(contentStatus).toBeTruthy()
+      const contentDate = await screen.getByText("2003-03-03")
+      expect(contentDate).toBeTruthy()
+    })
+  })
+})
