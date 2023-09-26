@@ -13,7 +13,6 @@ import router from "../app/Router.js";
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
-
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
@@ -24,9 +23,8 @@ describe("Given I am connected as an employee", () => {
       router()
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
-      const windowIcon = screen.getByTestId('icon-window')
-      //to-do write expect expression
-
+      const windowIcon = screen.getByTestId('icon-window') 
+      expect(windowIcon.classList.contains('active-icon')).toBe(true)
     })
     test("Then bills should be ordered from earliest to latest", async() => {
       bills.forEach(bill => {
