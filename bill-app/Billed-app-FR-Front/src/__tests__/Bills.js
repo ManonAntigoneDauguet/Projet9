@@ -4,9 +4,12 @@
 
 import { fireEvent, screen, waitFor } from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
+import Bills from "../containers/Bills.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES, ROUTES_PATH} from "../constants/routes.js"
 import { localStorageMock } from "../__mocks__/localStorage.js"
+import Actions from "../views/Actions.js"
+import userEvent from '@testing-library/user-event'
 import router from "../app/Router.js"
 
 describe("Given I am connected as an employee", () => {
@@ -71,6 +74,33 @@ describe("Given I am connected as an employee", () => {
       fireEvent.click(newBillButton)
       expect(handleClickNewBill).toHaveBeenCalled()
       expect(screen.getAllByText("Envoyer une note de frais")).toBeTruthy();
+    })
+  })
+  describe("When I am on Bills page and I click on an icon eye", () => {
+    test('Then, a modal should open', async() => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+      document.body.innerHTML = BillsUI({ data: bills })
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      const store = null
+      const billsScript = new Bills({ document, onNavigate, store, localStorage: window.localStorage })
+
+      const eye = document.createElement('div')
+      eye.innerHTML = Actions()
+      document.body.appendChild(eye)
+
+      const handleClickIconEye = jest.fn(billsScript.handleClickIconEye(eye))
+
+      eye.addEventListener('click', handleClickIconEye)
+      userEvent.click(eye)
+      expect(handleClickIconEye).toHaveBeenCalled()
+
+      const modale = await screen.getByTestId('modaleFile')
+      expect(modale).toBeTruthy()
     })
   })
 })
