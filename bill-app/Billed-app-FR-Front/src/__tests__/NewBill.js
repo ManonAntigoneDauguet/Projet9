@@ -8,6 +8,7 @@ import NewBill from "../containers/NewBill.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js"
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import mockStore from "../__mocks__/store"
+import router from "../app/Router.js"
 
 jest.mock("../app/store", () => mockStore)
 
@@ -72,6 +73,41 @@ describe("Given I am connected as an employee", () => {
       expect(handleSubmit).toHaveBeenCalled()
       await new Promise(process.nextTick)
       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
+    })
+  })
+})
+
+
+// test d'intégration POST
+describe("Given I am connected as an employee", () => {
+  describe("When I am on NewBill Page and I send a new bill", () => {
+    test("Then, the new bill should appear", async() => {
+      document.body.innerHTML = ""
+      localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.append(root)
+      router()
+      window.onNavigate(ROUTES_PATH.NewBill)
+
+      await waitFor(() => screen.getByTestId('form-new-bill'))
+      const formNewBill = screen.getByTestId('form-new-bill') 
+      const newBillsScript = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage }) 
+
+      newBillsScript.filePath = "C:\\fakepath\\facture.png"
+      const e = new Event("submit", { bubbles: true, cancelable: false })
+      formNewBill.dispatchEvent(e)
+      const handleSubmit = jest.fn(newBillsScript.handleSubmit(e))
+      formNewBill.addEventListener('submit', handleSubmit)
+      fireEvent.submit(formNewBill) 
+
+      expect(handleSubmit).toHaveBeenCalled()
+      await new Promise(process.nextTick)
+      expect(screen.getByText("Mes notes de frais")).toBeTruthy();
+      expect(screen.getByText("Hôtel et logement")).toBeTruthy();
+      expect(screen.getByText("encore")).toBeTruthy();
     })
   })
 })
