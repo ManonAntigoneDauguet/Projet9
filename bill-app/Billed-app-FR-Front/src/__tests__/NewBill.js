@@ -110,4 +110,67 @@ describe("Given I am connected as an employee", () => {
       expect(screen.getByText("encore")).toBeTruthy();
     })
   })
+  describe("When an error occurs on API", () => {
+    beforeEach(() => {
+      jest.spyOn(mockStore, "bills")
+      Object.defineProperty(
+        window,
+        'localStorage',
+        { value: localStorageMock }
+      )
+      window.localStorage.setItem('user', JSON.stringify({ 
+        type: "Employee"
+      }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.appendChild(root)
+      router()
+    })
+    test("fetches bills from an API and fails with 404 message error", async () => {
+      window.onNavigate(ROUTES_PATH.NewBill)
+      const formNewBill = screen.getByTestId('form-new-bill') 
+      const newBillsScript = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage }) 
+
+      newBillsScript.filePath = "C:\\fakepath\\facture.png"
+      const e = new Event("submit", { bubbles: true, cancelable: false })
+      formNewBill.dispatchEvent(e)
+      const handleSubmit = jest.fn(newBillsScript.handleSubmit(e))
+      formNewBill.addEventListener('submit', handleSubmit)
+      fireEvent.submit(formNewBill) 
+
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 404"))
+          }
+        }})
+      expect(handleSubmit).toHaveBeenCalled()
+      await new Promise(process.nextTick)
+      const message = await screen.getByText(/Erreur 404/)
+      expect(message).toBeTruthy()
+    })
+    test("fetches bills from an API and fails with 500 message error", async () => {
+      window.onNavigate(ROUTES_PATH.NewBill)
+      const formNewBill = screen.getByTestId('form-new-bill') 
+      const newBillsScript = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage }) 
+
+      newBillsScript.filePath = "C:\\fakepath\\facture.png"
+      const e = new Event("submit", { bubbles: true, cancelable: false })
+      formNewBill.dispatchEvent(e)
+      const handleSubmit = jest.fn(newBillsScript.handleSubmit(e))
+      formNewBill.addEventListener('submit', handleSubmit)
+      fireEvent.submit(formNewBill) 
+
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 500"))
+          }
+        }})
+      expect(handleSubmit).toHaveBeenCalled()
+      await new Promise(process.nextTick)
+      const message = await screen.getByText(/Erreur 500/)
+      expect(message).toBeTruthy()
+    })
+  })
 })
