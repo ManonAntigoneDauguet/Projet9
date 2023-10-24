@@ -29,39 +29,44 @@ export default class NewBill {
 
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
-    const email = JSON.parse(localStorage.getItem("user")).email
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`)
-    const file = fileInput.files[0]
-    const fileName = this.filePath[this.filePath.length-1]
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('email', email)
-    formData.append('type', e.target.querySelector(`select[data-testid="expense-type"]`).value)
-    formData.append('name', e.target.querySelector(`input[data-testid="expense-name"]`).value,)
-    formData.append('amount', parseInt(e.target.querySelector(`input[data-testid="amount"]`).value))
-    formData.append('date', e.target.querySelector(`input[data-testid="datepicker"]`).value)
-    formData.append('vat', e.target.querySelector(`input[data-testid="vat"]`).value)
-    formData.append('pct', parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20)
-    formData.append('commentary', e.target.querySelector(`textarea[data-testid="commentary"]`).value)
-    formData.append('fileUrl', this.fileUrl)
-    formData.append('fileName', this.fileName)
-    formData.append('status', 'pending')
+    if(this.filePath != null
+    && this.document.querySelector(`input[data-testid="datepicker"]`).value != null
+    && this.document.querySelector(`input[data-testid="amount"]`).value != null
+    && this.document.querySelector(`input[data-testid="pct"]`).value != null) {
+      console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)   
+      const email = JSON.parse(localStorage.getItem("user")).email
+      const fileInput = this.document.querySelector(`input[data-testid="file"]`)
+      const file = fileInput.files[0]
+      const fileName = this.filePath[this.filePath.length-1]
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('email', email)
+      formData.append('type', e.target.querySelector(`select[data-testid="expense-type"]`).value)
+      formData.append('name', e.target.querySelector(`input[data-testid="expense-name"]`).value,)
+      formData.append('amount', parseInt(e.target.querySelector(`input[data-testid="amount"]`).value))
+      formData.append('date', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+      formData.append('vat', e.target.querySelector(`input[data-testid="vat"]`).value)
+      formData.append('pct', parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20)
+      formData.append('commentary', e.target.querySelector(`textarea[data-testid="commentary"]`).value)
+      formData.append('fileUrl', this.fileUrl)
+      formData.append('fileName', this.fileName)
+      formData.append('status', 'pending')
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
-        }
-      })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-        this.onNavigate(ROUTES_PATH['Bills'])
-      }).catch(error => console.error(error))
+      this.store
+        .bills()
+        .create({
+          data: formData,
+          headers: {
+            noContentType: true
+          }
+        })
+        .then(({fileUrl, key}) => {
+          console.log(fileUrl)
+          this.billId = key
+          this.fileUrl = fileUrl
+          this.fileName = fileName
+          this.onNavigate(ROUTES_PATH['Bills'])
+        }).catch(error => console.error(error))      
+    }
   }
 }
